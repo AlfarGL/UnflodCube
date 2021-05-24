@@ -7,7 +7,6 @@
 #include "cube.h"
 #include "m_text.h"
 
-//fstream  configfile( "C:\\Users\\yangq\\Desktop\\config.txt", ios_base::in | ios_base::out);
 
 const float M_COLOR_LIST[18] = { 1,0,0,
 0,1,0,
@@ -15,11 +14,11 @@ const float M_COLOR_LIST[18] = { 1,0,0,
 1,1,0,
 0,1,1,
 1,0,1 };
-//std::string name = "test.txt";
 
+void CCube::Init() {
+	num_problems++;
+	num_doing = num_problems;
 
-void CCube::Init() 
-{
 	srand(time(0));
 	for (int i = 0; i < 6; i++)
 	{
@@ -28,7 +27,7 @@ void CCube::Init()
 		surface[i].color = i;
 	}
 	answer = rand() % 4;
-	err_time = 0;
+	num_err = 0;
 
 	for (size_t i = 0; i < 4; i++)
 	{
@@ -57,14 +56,60 @@ void CCube::Init()
 				++n;
 		}
 	} while (n < 3);
+
+	std::ofstream outfile;
+	outfile.open(file_path_record, std::ios::out | std::ios::app);
+	if (outfile.is_open()) {
+		for (size_t i = 0; i < 6; i++)
+		{
+			outfile << surface[i].dir_x << ' ' << surface[i].dir_y << ' ' << surface[i].color << ' '
+				<< randnum0_1[i] << ' ' << randnum0_6[i] << ' ' << middle[i] << ' ' << angle[i] << ' ';
+		}
+		outfile << answer << std::endl;
+		outfile.close();
+	}
 }
 
-CCube::~CCube()
-{
-	if (configfile.is_open())
-		configfile.close();
-	if (recordfile.is_open())
-		recordfile.close();
+CCube::CCube() {
+	std::ifstream infile;
+	std::ofstream outfile;
+	infile.open(file_path_config);
+	if (infile.is_open()) {
+		infile >> size_font;
+		infile.close();
+	}
+	else
+		size_font = 48;
+	outfile.open(file_path_record, std::ios::out | std::ios::trunc);
+	if (!outfile.is_open()) {
+		flag = true;
+		std::cout << "can't open record.txt" << std::endl;
+	}
+	else {
+		outfile.close();
+		message = "";
+		num_cca = 0;//number of consecutive correct answers
+		num_problems = 0;//The number of problems that have been done
+		num_doing = 0;//The order of problems that is doing now 
+		num_mwa = 0;//num_max_wrong_answer;
+		score = 0;//wrong -10, right   +1+num_cca*2
+
+		for (size_t i = 0; i < 6; i++)
+		{
+			surface[i].dir_x = 0;
+			surface[i].dir_y = 0;
+			surface[i].color = 0;
+			randnum0_1[i] = 0;
+			randnum0_6[i] = 0; 
+			middle[i] = 0; 
+			angle[i] = 0;
+		}
+		answer = 0;
+		Init();
+	}
+}
+
+CCube::~CCube(){
 }
 
 void CCube::Display() {
@@ -72,10 +117,19 @@ void CCube::Display() {
 	float height = float(glutGet(GLUT_WINDOW_HEIGHT));
 	SIZE_Y = SIZE_X *  width /height;
 
-	selectFont(48, GB2312_CHARSET, "微软雅黑");
+	
+    selectFont(size_font, GB2312_CHARSET, "微软雅黑");
+	
+	glColor3f(1.0f, 0.0f, 0.0f);//设置字体颜色
+	glRasterPos2f(0.4f, 0.92f);
+	message_status = "      SCO:" + std::to_string(score) + "      CCA:" + std::to_string(num_cca) + "      MWA:" + std::to_string(num_mwa);
+	drawCNString(message_status.c_str());
+
+
 	glColor3f(1.0f, 1.0f, 0.0f);//设置字体颜色
-	glRasterPos2f(-0.9f, 0.95f);
-	drawCNString("根据正方体表面展开图，选择以下四个选项中等价的展开图，填写数字1 - 4。");
+	glRasterPos2f(-0.9f, 0.92f);
+	message_status = std::to_string(num_doing) + "/" + std::to_string(num_problems) + "根据正方体表面展开图，选择以下四个选项中等价的展开图，填写数字1 - 4。";
+	drawCNString(message_status.c_str());
 
 	glRasterPos2f(-0.9f, 0.8f);
 	drawCNString("展开图");
@@ -89,16 +143,10 @@ void CCube::Display() {
 	drawCNString("选项4");
 
 	glRasterPos2f(-0.9f, -0.95f);
-	char* str = new char[message.size()+1];
-	for (size_t i = 0; i < message.size(); i++)
-	{
-		str[i] = message[i];
-	}
-	str[message.size()] = '\0';
-	drawCNString(str);
+	drawCNString(message.c_str());
+
 
 	Display_true(middle[4], angle[4],-0.9,0.9);
-	
 	float  position[8] = { -0.9,0.3,0,0.3,-0.9,-0.3,0,-0.3 };
 	for (size_t i = 0; i < 4; i++)
 	{
@@ -111,7 +159,6 @@ void CCube::Display() {
 }
 
 void  CCube::Simple_status(int& middle, int& angle, SSurface* end_sf, SSurface* surface) {
-
 	int distance = (middle + 3) % 4;
 	for (int i = 0; i < 4; i++)
 	{
@@ -263,27 +310,73 @@ void CCube::Display_false(int& middle, int& angle, float x, float y,int i) {
 }
 
 void CCube::Check(unsigned char& c) {
+	std::string tmp;
 	if (c != answer + 49) {
-		err_time++;
-		message = "回答错误，错误次数：";
-		message.push_back(err_time+48);
-		std::string tmp = "你的回答是：";
-		tmp.push_back(c);
-		message += tmp;
+		num_cca = 0;
+		num_mwa++;
+		num_err++;
+		score -= 10;
+
+		message = "回答错误，错误次数:";
+		tmp = std::to_string(num_err); message += tmp;
+		message += "      你的回答是:";
+		tmp = std::to_string(c - 48); message += tmp;
 	}
 	else {
-		message = "回答正确！";
-		Init();
+		score += 1 + num_cca * 2;
+		num_cca++;
+		if (num_doing < num_problems) 
+			Select_problem(true);
+		else
+			Init();
+		message = "回答正确";
+		message += "      你的回答是:";
+		tmp = std::to_string(c - 48); message += tmp;
 	}
 }
 
-void CCube::Set_size_font_up() {
-	if (configfile.is_open())
-		configfile << "sdf  " << std::endl;
-	else
-		message.append(" esdf");
+void CCube::Set_size_font(int i) {
+	size_font += i;
+	std::ofstream  outfile;
+	outfile.open(file_path_config);
+	if (outfile.is_open()) {
+		outfile << size_font;
+		outfile.close();
+	}else
+		message.append("Error: can't open file config to wirte.");
 }
-void CCube::Set_size_font_down() {}
-void CCube::Previous_problem() {}
-void CCube::Next_problem() {}
+
+void CCube::Select_problem(bool  is_next_problem) {
+	std::ifstream infile(file_path_record);
+	if (is_next_problem) {
+		if (num_doing >= num_problems) {
+			message = "这是最新的题目了,请作答。";
+		}
+		else {
+			message = "";
+			++num_doing;
+		}
+	}
+	else {
+		if (num_doing <= 1) {
+			message = "这是第一题，没有上一题。";
+		}
+		else {
+			message = "";
+			--num_doing;
+		}
+	
+	}
+	if (infile.is_open()) {
+		infile.ignore(86 * (num_doing - 1));
+		for (size_t i = 0; i < 6; i++)
+		{
+			infile >> surface[i].dir_x >> surface[i].dir_y >> surface[i].color
+				>> randnum0_1[i] >> randnum0_6[i] >> middle[i] >> angle[i];
+		}
+		infile >> answer;
+		infile.close();
+	}
+
+}
 

@@ -6,7 +6,7 @@
 
 using namespace std;
 
-CCube g_cube("C:\\Users\\yangq\\Desktop\\test.txt", "C:\\Users\\yangq\\Desktop\\test2.txt");
+CCube g_cube;
 
 void Render()
 {
@@ -24,8 +24,20 @@ void Keyboard(unsigned char c, int x, int y)
 	case 27:
 		glutLeaveMainLoop();
 		break;
+	case 'a':
+		g_cube.Select_problem(false);
+		Render();
+		break;
+	case 'd':
+		g_cube.Select_problem(true);
+		Render();
+		break;
 	case 'w':
-		g_cube.Set_size_font_up();
+		g_cube.Set_size_font(1);
+		Render();
+		break;
+	case 's':
+		g_cube.Set_size_font(-1);
 		Render();
 		break;
 	default:
@@ -40,7 +52,6 @@ int main(int argc, char** argv)
 {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
-	//glutInitWindowSize(1600,900);
 	glutCreateWindow("Cube Unfold");
 	glutFullScreen();
 	
@@ -53,6 +64,10 @@ int main(int argc, char** argv)
 		cout << "GLEW ERROR" << endl;
 		return 1;
 	}
+	if (g_cube.flag) {
+		return 1;
+	}
+
 
 	glutMainLoop();
 	return 0;
