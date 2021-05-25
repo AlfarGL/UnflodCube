@@ -24,12 +24,18 @@
     <ClCompile Include="m_text.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="cube3d.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cube.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="m_text.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="cube3d.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

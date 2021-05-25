@@ -3,16 +3,19 @@
 #include <GL/freeglut.h>
 #include <fstream>
 #include "cube.h"
+#include "cube3d.h"
 
 using namespace std;
 
 CCube g_cube;
+CCube3d g_cube3d;
 
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	g_cube.Display();
+	//g_cube3d.p(&g_cube3d);
 	
 	glutSwapBuffers();
 }
@@ -40,6 +43,10 @@ void Keyboard(unsigned char c, int x, int y)
 		g_cube.Set_size_font(-1);
 		Render();
 		break;
+	case 'e':
+		g_cube.easy();
+		Render();
+		break;
 	default:
 		g_cube.Check(c);
 		Render();
@@ -54,6 +61,9 @@ int main(int argc, char** argv)
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);
 	glutCreateWindow("Cube Unfold");
 	glutFullScreen();
+	
+	//glutDisplayFunc(g_cube3d.display);
+	//void (*p)();
 	
 	glutDisplayFunc(Render);
 	glutKeyboardFunc(Keyboard);

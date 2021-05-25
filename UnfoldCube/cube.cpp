@@ -150,9 +150,12 @@ void CCube::Display() {
 	float  position[8] = { -0.9,0.3,0,0.3,-0.9,-0.3,0,-0.3 };
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (i == answer)
+		if (i == answer) {
+			if (num_doing < num_problems)
+				color_select = 0;
 			Display_true(middle[i], angle[i], position[i * 2], position[i * 2 + 1]);
-		else
+			color_select = 1;
+		}else
 			Display_false(middle[i], angle[i], position[i * 2], position[i * 2 + 1],i);
 	}
 
@@ -183,7 +186,8 @@ void  CCube::Simple_status(int& middle, int& angle, SSurface* end_sf, SSurface* 
 }
 
 void  CCube::Fill(float x, float y, SSurface& ss) {
-	glColor3f(1.0f, 1.0f, 1.0f);
+	glColor3f(color_cube[color_select*3], color_cube[color_select * 3+1], color_cube[color_select * 3+2]);
+	//glColor3f(1.0f, 1.0f, 1.0f);
 	glBegin(GL_LINE_LOOP);//开始循环线图
 	glVertex3f(x, y, 0.0f);
 	glVertex3f(x + SIZE_X, y, 0.0f);
@@ -380,3 +384,12 @@ void CCube::Select_problem(bool  is_next_problem) {
 
 }
 
+void CCube::easy()
+{
+	int i ;
+	do
+	{
+		i = rand() % 4;
+	} while (i==answer);
+	message = std::to_string(i+1)+" is wrong answer.";
+}

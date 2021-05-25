@@ -11,7 +11,8 @@ public:
 	void Check(unsigned char& c);
 	void Set_size_font(int i);
 	void Select_problem(bool  is_next_problem);
-
+	void easy();
+    
 private:
 	struct SSurface
 	{
@@ -41,6 +42,8 @@ private:
 	size_t num_doing;//The order of problems that is doing now 
 	size_t num_mwa;//num_max_wrong_answer;
 	long long score;//wrong -10, right   +1+num_cca*2
+	const float color_cube[6] = { 1.0f,0,0,1.0f,1.0f,1.0f };
+	int color_select = 1;
 
 	void Init();
 	void Display_true(int& middle, int& angle, float x, float y);

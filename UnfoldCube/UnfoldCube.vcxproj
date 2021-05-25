@@ -132,7 +132,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,12 +143,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cube3d.cpp" />
     <ClCompile Include="m_text.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="cube.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cube.h" />
+    <ClInclude Include="cube3d.h" />
     <ClInclude Include="m_text.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
